@@ -6,6 +6,13 @@ package body Viper.UTF8 is
    -- pragma Import (Intrinsic, Shift_Right);
 
    procedure Get (S : in Str; C : out Chr; L : out Natural) is
+
+      subtype R80_BF is Viper.Chr range 16#80# .. 16#BF#;
+      subtype RA0_BF is Viper.Chr range 16#A0# .. 16#BF#;
+      subtype R80_9F is Viper.Chr range 16#80# .. 16#9F#;
+      subtype R90_BF is Viper.Chr range 16#90# .. 16#BF#;
+      subtype R80_8F is Viper.Chr range 16#80# .. 16#8F#;
+
       AA : Chr;
       AB : Chr;
       AC : Chr;
@@ -26,10 +33,48 @@ package body Viper.UTF8 is
                goto BAD;
             end if;
 
+            AA := Character'Pos (S (S'First + 1));
+
+            case C is
+               when 16#C2# .. 16#DF# =>
+                  if AA not in R80_BF then
+                     goto BAD;
+                  end if;
+               when 16#E0# =>
+                  if AA not in RA0_BF then
+                     goto BAD;
+                  end if;
+               when 16#E1# .. 16#EC# =>
+                  if AA not in R80_BF then
+                     goto BAD;
+                  end if;
+               when 16#ED# =>
+                  if AA not in R80_9F then
+                     goto BAD;
+                  end if;
+               when 16#EE# .. 16#EF# =>
+                  if AA not in R80_BF then
+                     goto BAD;
+                  end if;
+               when 16#F0# =>
+                  if AA not in R90_BF then
+                     goto BAD;
+                  end if;
+               when 16#F1# .. 16#F3# =>
+                  if AA not in R80_BF then
+                     goto BAD;
+                  end if;
+               when 16#F4# =>
+                  if AA not in R80_8F then
+                     goto BAD;
+                  end if;
+               when others =>
+                  goto BAD;
+            end case;
+
             C := (C and 16#1F#);
             C := Shift_Left (C, 12);
 
-            AA := Character'Pos (S (S'First + 1));
             AA := AA and 16#3F#;
             AA := Shift_Left (AA, 0);
 
@@ -51,6 +96,9 @@ package body Viper.UTF8 is
             AA := Shift_Left (AA, 6);
 
             AB := Character'Pos (S (S'First + 2));
+            if AB not in R80_BF then
+               goto BAD;
+            end if;
             AB := AB and 16#3F#;
             AB := Shift_Left (AB, 0);
 
@@ -72,10 +120,16 @@ package body Viper.UTF8 is
             AA := Shift_Left (AA, 12);
 
             AB := Character'Pos (S (S'First + 2));
+            if AB not in R80_BF then
+               goto BAD;
+            end if;
             AB := AB and 16#3F#;
             AB := Shift_Left (AB, 6);
 
             AC := Character'Pos (S (S'First + 3));
+            if AB not in R80_BF then
+               goto BAD;
+            end if;
             AC := AC and 16#3F#;
             AC := Shift_Left (AB, 0);
             L := 4;
