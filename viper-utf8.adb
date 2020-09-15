@@ -73,7 +73,7 @@ package body Viper.UTF8 is
             end case;
 
             C := (C and 16#1F#);
-            C := Shift_Left (C, 12);
+            C := Shift_Left (C, 6);
 
             AA := AA and 16#3F#;
             AA := Shift_Left (AA, 0);
