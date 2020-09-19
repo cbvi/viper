@@ -1,13 +1,13 @@
 package body Viper.UTF8 is
-   function Shift_Left (Value : Chr; Amount : Natural) return Chr;
+   function Shift_Left (Value : Rune; Amount : Natural) return Rune;
    pragma Import (Intrinsic, Shift_Left);
 
-   -- function Shift_Right (Value : Chr; Amount : Natural) return Chr;
+   -- function Shift_Right (Value : Rune; Amount : Natural) return Rune;
    -- pragma Import (Intrinsic, Shift_Right);
 
-   function To_Byte (S : in Str; O : in Natural) return Chr;
+   function To_Byte (S : in Str; O : in Natural) return Rune;
 
-   function To_Byte (S : in Str; O : in Natural) return Chr is
+   function To_Byte (S : in Str; O : in Natural) return Rune is
    begin
       return Character'Pos (S (S'First + O));
    exception
@@ -15,17 +15,17 @@ package body Viper.UTF8 is
          return Badchr;
    end To_Byte;
 
-   procedure Get (S : in Str; C : out Chr; L : out Natural) is
+   procedure Get (S : in Str; C : out Rune; L : out Natural) is
 
-      subtype R80_BF is Viper.Chr range 16#80# .. 16#BF#;
-      subtype RA0_BF is Viper.Chr range 16#A0# .. 16#BF#;
-      subtype R80_9F is Viper.Chr range 16#80# .. 16#9F#;
-      subtype R90_BF is Viper.Chr range 16#90# .. 16#BF#;
-      subtype R80_8F is Viper.Chr range 16#80# .. 16#8F#;
+      subtype R80_BF is Viper.Rune range 16#80# .. 16#BF#;
+      subtype RA0_BF is Viper.Rune range 16#A0# .. 16#BF#;
+      subtype R80_9F is Viper.Rune range 16#80# .. 16#9F#;
+      subtype R90_BF is Viper.Rune range 16#90# .. 16#BF#;
+      subtype R80_8F is Viper.Rune range 16#80# .. 16#8F#;
 
-      AA : Chr;
-      AB : Chr;
-      AC : Chr;
+      AA : Rune;
+      AB : Rune;
+      AC : Rune;
    begin
       if S'Last < 1 then
          goto BAD;
