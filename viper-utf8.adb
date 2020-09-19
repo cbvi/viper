@@ -5,7 +5,8 @@ package body Viper.UTF8 is
    -- function Shift_Right (Value : Rune; Amount : Natural) return Rune;
    -- pragma Import (Intrinsic, Shift_Right);
 
-   function To_Byte (S : in Str; O : in Natural) return Rune;
+   function To_Byte (S : in Str; O : in Natural) return Rune
+      with Pre => S'Last >= O;
 
    function To_Byte (S : in Str; O : in Natural) return Rune is
    begin
