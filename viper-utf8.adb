@@ -9,10 +9,8 @@ package body Viper.UTF8 is
 
    function To_Byte (S : in Str; O : in Byte_Position) return Rune
       with Pre =>
-         S'Length > 0 and
-         S'Last < Integer'Last - O and
-         S'First < Integer'Last - O and
-         S'First + O - 1 <= S'Last;
+         S'Length >= O and
+         S'First <= Integer'Last - (O - 1);
 
    function To_Byte (S : in Str; O : in Byte_Position) return Rune is
    begin
@@ -148,6 +146,8 @@ package body Viper.UTF8 is
          end if;
          AC := AC and 16#3F#;
          AC := Shift_Left (AB, 0);
+
+         C := C or AA or AB or AC;
          L := 4;
          goto RET;
       end if;
