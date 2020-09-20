@@ -173,7 +173,7 @@ package body Viper.UTF8 is
          AB := Shift_Left (AB, 6);
 
          AC := To_Byte (S, 4);
-         if AB not in R80_BF then
+         if AC not in R80_BF then
             Bad (C, L);
             return;
          end if;
