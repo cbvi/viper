@@ -1,4 +1,4 @@
-package body Viper.UTF8 is
+package body Viper.UTF8 with SPARK_Mode is
    function Shift_Left (Value : Rune; Amount : Natural) return Rune;
    pragma Import (Intrinsic, Shift_Left);
 
