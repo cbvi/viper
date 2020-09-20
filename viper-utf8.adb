@@ -14,10 +14,7 @@ package body Viper.UTF8 is
 
    function To_Byte (S : in Str; O : in Byte_Position) return Rune is
    begin
-      return Character'Pos (S (S'First + O - 1));
-   exception
-      when Constraint_Error =>
-         return Badchr;
+      return Character'Pos (S (S'First + (O - 1)));
    end To_Byte;
 
    procedure Bad (C : out Rune; L : out Integer);
