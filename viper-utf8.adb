@@ -145,7 +145,7 @@ package body Viper.UTF8 is
             goto BAD;
          end if;
          AC := AC and 16#3F#;
-         AC := Shift_Left (AB, 0);
+         AC := Shift_Left (AC, 0);
 
          C := C or AA or AB or AC;
          L := 4;
