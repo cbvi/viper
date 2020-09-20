@@ -1,3 +1,5 @@
+pragma SPARK_Mode (On);
+
 with Viper;
 
 package Viper.UTF8 is

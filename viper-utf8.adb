@@ -20,6 +20,21 @@ package body Viper.UTF8 is
          return Badchr;
    end To_Byte;
 
+   procedure Bad (C : out Rune; L : out Integer);
+   procedure Bad (C : out Rune; L : out Integer) is
+   begin
+      C := Badchr;
+      L := 1;
+   end Bad;
+
+   procedure Ret (C : in out Rune);
+   procedure Ret (C : in out Rune) is
+   begin
+      if C >= 16#D800# and C <= 16#DFFF# then
+         C := Badchr;
+      end if;
+   end Ret;
+
    procedure Get (S : in Str; C : out Rune; L : out Natural) is
 
       subtype R80_BF is Viper.Rune range 16#80# .. 16#BF#;
@@ -33,7 +48,8 @@ package body Viper.UTF8 is
       AC : Rune;
    begin
       if S'Length < 1 then
-         goto BAD;
+         Bad (C, L);
+         return;
       end if;
 
       C := To_Byte (S, 1);
@@ -44,7 +60,8 @@ package body Viper.UTF8 is
 
       if (C and 16#E0#) = 16#C0# then
          if S'Length < 2 then
-            goto BAD;
+            Bad (C, L);
+            return;
          end if;
 
          AA := To_Byte (S, 2);
@@ -52,38 +69,47 @@ package body Viper.UTF8 is
          case C is
             when 16#C2# .. 16#DF# =>
                if AA not in R80_BF then
-                  goto BAD;
+                  Bad (C, L);
+                  return;
                end if;
             when 16#E0# =>
                if AA not in RA0_BF then
-                  goto BAD;
+                  Bad (C, L);
+                  return;
                end if;
             when 16#E1# .. 16#EC# =>
                if AA not in R80_BF then
-                  goto BAD;
+                  Bad (C, L);
+                  return;
                end if;
             when 16#ED# =>
                if AA not in R80_9F then
-                  goto BAD;
+                  Bad (C, L);
+                  return;
                end if;
             when 16#EE# .. 16#EF# =>
                if AA not in R80_BF then
-                  goto BAD;
+                  Bad (C, L);
+                  return;
                end if;
             when 16#F0# =>
                if AA not in R90_BF then
-                  goto BAD;
+                  Bad (C, L);
+                  return;
                end if;
             when 16#F1# .. 16#F3# =>
                if AA not in R80_BF then
-                  goto BAD;
+                  Bad (C, L);
+                  return;
                end if;
             when 16#F4# =>
                if AA not in R80_8F then
-                  goto BAD;
+                  Bad (C, L);
+                  return;
                end if;
             when others =>
-               goto BAD;
+               Bad (C, L);
+               return;
          end case;
 
          C := (C and 16#1F#);
@@ -94,12 +120,14 @@ package body Viper.UTF8 is
 
          C := C or AA;
          L := 2;
-         goto RET;
+         Ret (C);
+         return;
       end if;
 
       if (C and 16#F0#) = 16#E0# then
          if S'Length < 3 then
-            goto BAD;
+            Bad (C, L);
+            return;
          end if;
 
          C := (C and 16#0F#);
@@ -111,19 +139,22 @@ package body Viper.UTF8 is
 
          AB := To_Byte (S, 3);
          if AB not in R80_BF then
-            goto BAD;
+            Bad (C, L);
+            return;
          end if;
          AB := AB and 16#3F#;
          AB := Shift_Left (AB, 0);
 
          C := C or AA or AB;
          L := 3;
-         goto RET;
+         Ret (C);
+         return;
       end if;
 
       if (C and 16#F8#) = 16#F0# and C <= 16#F4# then
          if S'Length < 4 then
-            goto BAD;
+            Bad (C, L);
+            return;
          end if;
 
          C := C and 16#07#;
@@ -135,36 +166,27 @@ package body Viper.UTF8 is
 
          AB := To_Byte (S, 3);
          if AB not in R80_BF then
-            goto BAD;
+            Bad (C, L);
+            return;
          end if;
          AB := AB and 16#3F#;
          AB := Shift_Left (AB, 6);
 
          AC := To_Byte (S, 4);
          if AB not in R80_BF then
-            goto BAD;
+            Bad (C, L);
+            return;
          end if;
          AC := AC and 16#3F#;
          AC := Shift_Left (AC, 0);
 
          C := C or AA or AB or AC;
          L := 4;
-         goto RET;
-      end if;
-
-         goto BAD;
-
-      <<RET>>
-      if C >= 16#D800# and C <= 16#DFFF# then
-         C := Badchr;
+         Ret (C);
          return;
       end if;
 
-      return;
-
-      <<BAD>>
-      C := Badchr;
-      L := 1;
+      Bad (C, L);
       return;
    end Get;
 end Viper.UTF8;
